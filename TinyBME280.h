@@ -25,6 +25,10 @@ void BME280setup();
 // Sets Sleep Mode for sensor
 void BME280sleep ();
 
+void BME280forced();
+
+bool BME280isMeasuring();
+
 // Temperature in DegC, resolution is 0.01 DegC
 // Output value of “5123” equals 51.23 DegC
 int32_t BME280temperature();

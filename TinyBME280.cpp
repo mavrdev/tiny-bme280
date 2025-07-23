@@ -65,12 +65,26 @@ void BME280setup () {
 
 // Can be called if sensor can sleep to save energy
 void BME280sleep () {
-  delay(2);
-  // Set the mode to Normal, no upsampling
   Wire.beginTransmission(BME280address);
   Wire.write(0xF4);                             // ctrl_meas
-  Wire.write(0b00000000);                       // what can be better than sleep?!
+  Wire.write(0b00100100);                       // what can be better than sleep?!
   Wire.endTransmission();
+}
+
+void BME280forced () {
+  Wire.beginTransmission(BME280address);
+  Wire.write(0xF4);                             // ctrl_meas
+  Wire.write(0b00100101);
+  Wire.endTransmission();
+}
+
+bool BME280isMeasuring () {
+  Wire.beginTransmission(BME280address);
+  Wire.write(0xF3);
+  Wire.endTransmission();
+  Wire.requestFrom(BME280address, 1);
+  uint8_t stat = Wire.read();
+  return(stat & (1<<3));
 }
 
 // Returns temperature in DegC, resolution is 0.01 DegC
@@ -82,7 +96,7 @@ int32_t BME280temperature () {
   Wire.requestFrom(BME280address, 3);
   int32_t adc = read32();
   // Compensate
-  int32_t var1, var2, t; 
+  int32_t var1, var2; 
   var1 = ((((adc>>3) - ((int32_t)((uint16_t)T[1])<<1))) * ((int32_t)T[2])) >> 11;
   var2 = ((((adc>>4) - ((int32_t)((uint16_t)T[1]))) * ((adc>>4) - ((int32_t)((uint16_t)T[1])))) >> 12);
   var2 = (var2 * ((int32_t)T[3])) >> 14;
